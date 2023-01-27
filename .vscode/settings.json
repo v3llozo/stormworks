@@ -1,0 +1,12 @@
+{
+    "Lua.diagnostics.globals": [],
+    "Lua.diagnostics.disable": [
+        "lowercase-global",
+        "undefined-global",
+        "codestyle-check",
+        "err-assign-as-eq",
+        "unknown-attribute",
+        "unknown-operator",
+        "unknown-symbol"
+    ]
+}

@@ -23,7 +23,7 @@ function onDraw()
 end
 
 rpsIdle = pid(.4, .0005, .07)
-rpsLimit = pid(.01, .05, .1)
+rpsLimit = pid(.01, .001, .8)
 tickCounter = 0
 
 x = 0.0001
@@ -45,11 +45,9 @@ function onTick()
 	onOff = input.getBool(2)
 
 	pidmin = clamp(rpsIdle:run(rps, minRps) * -1, 0, 1)
-	pidmax = clamp(rpsLimit:run(rps, maxRps) * -1,-1,1)
+	pidmax = clamp(rpsLimit:run(rps, maxRps) * -1, -0.9, 0)
 	if rps > 1 then
-		if rps > maxRps*.9 then
-			throttle = pidmax
-		end
+		throttle = clamp(throttle + pidmax,0,1)
 		if rps < minRps then
 			throttle = throttle + pidmin
 		end
@@ -68,9 +66,12 @@ function onTick()
 
 	output.setNumber(1, airIntake)
 	output.setNumber(2, fuelIntake)
-	output.setNumber(3, rpsIdle:run(rps, minRps))
-	output.setNumber(4, rpsLimit:run(rps, maxRps))
+	output.setNumber(3, pidmin)
+	output.setNumber(4, pidmax)
+	output.setNumber(5, temp)
+	output.setNumber(6, rps)
 
 	output.setBool(1, startStop)
+	output.setBool(2, onOff)
 
 end

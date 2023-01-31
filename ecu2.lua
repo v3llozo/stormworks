@@ -22,7 +22,7 @@ end
 function onDraw()
 end
 
-rpsIdle = pid(.4, .0005, .07)
+rpsIdle = pid(.04, .01, .03)
 rpsLimit = pid(.01, .001, .8)
 tickCounter = 0
 
@@ -44,16 +44,16 @@ function onTick()
 	startStop = input.getBool(1)
 	onOff = input.getBool(2)
 
-	pidmin = clamp(rpsIdle:run(rps, minRps) * -1, 0, 0.9)
+	pidmin = clamp(rpsIdle:run(rps, minRps) *-1, 0.005, 1)
 	pidmax = clamp(rpsLimit:run(rps, maxRps) * -1, -0.9, 0)
 	if rps > 1 then
 		if rps > maxRps then throttle = throttle + pidmax end
-		if rps < minRps then throttle = throttle + pidmin end
+		throttle = throttle + pidmin
 	end
 
 
-	if air == 0 then air = 0.0001 end
-	if fuel == 0 then fuel = 0.0001 end
+	if air == 0 then air = 0.001 end
+	if fuel == 0 then fuel = 0.001 end
 	if stoichometric == 0 then stoichometric = 0.5 end
 	if sensibility == 0 then sensibility = 0.02 end
 

@@ -11,7 +11,7 @@ function onTick()
         x = gear - 1
         while x ~= 0 do
             rem = math.fmod(x, 2)
-            if rem == 1 then gearMap[k] = true end
+            if rem >= 1 then gearMap[k] = true end
             k = k + 1
             x = tonumber(x / 2)
             i = i * 10

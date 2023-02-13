@@ -40,8 +40,8 @@
     "Lua.runtime.pathStrict": true,
     "Lua.workspace.library": [
         "e:/codes/lua/stormworks/",
-        "c:/Users/Vellozo/.vscode/extensions/nameouschangey.lifeboatapi-0.0.32/assets/lua/Common/",
-        "c:/Users/Vellozo/.vscode/extensions/nameouschangey.lifeboatapi-0.0.32/assets/lua/Microcontroller/",
+        "c:/Users/Vellozo/.vscode/extensions/nameouschangey.lifeboatapi-0.0.33/assets/lua/Common/",
+        "c:/Users/Vellozo/.vscode/extensions/nameouschangey.lifeboatapi-0.0.33/assets/lua/Microcontroller/",
         "e:/codes/lua/stormworks/_build/libs/"
     ],
     "lifeboatapi.stormworks.libs.gitLibraries": [

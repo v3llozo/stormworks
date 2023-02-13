@@ -23,20 +23,12 @@ do
         -- touchscreen defaults
         local screenConnection = simulator:getTouchScreen(1)
         simulator:setInputBool(1, screenConnection.isTouched)
-        simulator:setInputNumber(1, screenConnection.width)
-        simulator:setInputNumber(2, screenConnection.height)
-        simulator:setInputNumber(3, screenConnection.touchX)
-        simulator:setInputNumber(4, screenConnection.touchY)
+        simulator:setInputNumber(2, screenConnection.touchX)
+        simulator:setInputNumber(3, screenConnection.touchY)
+        simulator:setInputNumber(4, ticks / 10)
 
         -- NEW! button/slider options from the UI
-        simulator:setInputBool(5, simulator:getIsToggled(1)) -- if button 1 is clicked, provide an ON pulse for input.getBool(31)
-        simulator:setInputBool(6, simulator:getIsToggled(2))
-        simulator:setInputBool(7, simulator:getIsToggled(3))
-        simulator:setInputBool(8, simulator:getIsToggled(4))
-        simulator:setInputBool(9, simulator:getIsToggled(5))
-        simulator:setInputBool(10, simulator:getIsToggled(6))
-        simulator:setInputBool(11, simulator:getIsToggled(7))
-        simulator:setInputBool(12, simulator:getIsToggled(8))
+        simulator:setInputBool(1, simulator:getIsToggled(1)) -- if button 1 is clicked, provide an ON pulse for input.getBool(31)
 
         -- simulator:setInputNumber(31, simulator:getSlider(1)) -- set input 31 to the value of slider 1
 
@@ -56,34 +48,52 @@ end
 ticks = 0
 gB = input.getBool
 gN = input.getNumber
-maxTargets = 8
+maxTargets = 7
 function onTick()
+    isTouched = gB(1)
+    touchX = gN(2)
+    touchY = gN(3)
     ticks = ticks + 1
     radar = {
+        angle = (gN(4) % 1) * 360,
         found = {},
         target = {}
     }
-    k=1
-    for i = 1 , maxTargets, 1 do
-        radar.found.insert(i,gB(i+4))
-        radar.target.insert(i,{
-           {distance=gN(k), azimuth=gN(k+1), elevation=gN(k+2), time=gN(k+3)}
+    k = 5
+    for i = 1, maxTargets, 1 do
+        table.insert(radar.found, gB(i + 4))
+        table.insert(radar.target, {
+            distance = gN(k), azimuth = gN(k + 1), elevation = gN(k + 2), time = gN(k + 3)
         })
-        k=k+4
+        k = k + 4
     end
 end
 
 function onDraw()
     w = screen.getWidth()
     h = screen.getHeight()
+    r = (h / 2) * 0.9
+    rX = r * math.sin(radar.angle * 0.0175) + h / 2
+    rY = r * math.cos(radar.angle * 0.0175) + w / 2
 
-    screen.setColor(255,255,255)
-    screen.drawLine(0,0,w,0)
-    screen.drawLine(w/5,0,w/5,h)
+    screen.setColor(255, 255, 255)
+    screen.drawCircleF(w / 2, h / 2, 6)
+    screen.drawText(0, 0, string.format("%3.0f", r))
+    screen.drawText(0, 8, string.format("%3.2f", radar.angle))
+    screen.drawText(0, 16, string.format("%3.2f", rX))
+    screen.drawText(0, 24, string.format("%3.2f", rY))
 
-    for i=1, maxTargets, 1 do
-        screen.drawLine(2,i*8+1,w,i*8+1)
-        screen.drawText(2, i*8, "["..i.."]:"..radar.found[i])
-        screen.drawText(w/4, i*8, "aaa")
+    screen.setColor(40, 255, 40)
+    screen.drawCircle(w / 2, h / 2, r)
+    screen.drawLine(w / 2, h / 2, rY, rX)
+    for i = 1, maxTargets, 1 do
+        if radar.found[i] then
+            screen.setColor(255, 255, 255)
+            tX = (radar.target[i].distance * 0.00001666) * r * math.sin(radar.angle * 0.0175) + h / 2
+            tY = (radar.target[i].distance * 0.00001666) * r * math.cos(radar.angle * 0.0175) + w / 2
+            screen.drawText(0, 32 + i * 8, string.format("%1.2f", radar.target[i].azimuth))
+            screen.setColor(255, 0, 0)
+            screen.drawRect(tY,tX, 3, 3)
+        end
     end
 end

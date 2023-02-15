@@ -87,6 +87,8 @@ detectedTargets = {}
 function onDraw()
     w = screen.getWidth()
     h = screen.getHeight()
+    screen.setColor(5, 5, 5)
+    screen.drawRectF(0, 0, w, h)
     r = (h / 2) * 0.95
     rX = r * math.sin(radar.angle * 0.0175) + h / 2
     rY = r * math.cos(radar.angle * 0.0175) + w / 2
@@ -106,12 +108,8 @@ function onDraw()
         end
     end
 
-    screen.setColor(255, 255, 255)
+    screen.setColor(190, 190, 190)
     screen.drawRectF(w / 2 - 1, h / 2 - 1, 3, 3)
-    screen.drawText(w - 38, 1, string.format("%.1f", (1 / selectedDistance) / 1000) .. "km")
-
-
-    screen.setColor(40, 220, 40)
     for i = 1, 5, 1 do
         screen.drawCircle(w / 2, h / 2, r / 5 * i)
     end
@@ -120,7 +118,7 @@ function onDraw()
             r * math.sin(((i * 45) + 45) * 0.0175) + h / 2)
     end
 
-    screen.setColor(10, 255, 10)
+    screen.setColor(40, 251, 40)
     screen.drawLine(w / 2, h / 2, rY, rX)
 
     targetAngle = radar.angle
@@ -131,14 +129,18 @@ function onDraw()
                 math.sin((targetAngle - radar.target[i].azimuth / 100) * 0.0175) + h / 2
             tY = (radar.target[i].distance * selectedDistance) * r *
                 math.cos((targetAngle - radar.target[i].azimuth / 100) * 0.0175) + w / 2
-            screen.setColor(255, 0, 0)
+            screen.setColor(255,10,20)
             screen.drawRect(tY, tX, 1, 1)
             table.insert(detectedTargets, { y = tY, x = tX, angle = targetAngle, time = radar.target[i].time })
         end
     end
 
     for k, t in pairs(detectedTargets) do
-        screen.setColor(255, 0, 0)
+        screen.setColor(255,10,20)
         screen.drawRect(t.y, t.x, 1, 1)
     end
+
+    screen.setColor(255, 255, 255)
+    screen.drawRectF(w / 2 - 1, h / 2 - 1, 3, 3)
+    screen.drawText(2, 2, string.format("%1.1f", 1/distanceDetector[defaultDistance]/1000))
 end

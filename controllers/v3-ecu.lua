@@ -1,11 +1,20 @@
 function clamp(n, min, max)
-	if n > max then return max
-	elseif n < min then return min end
+	if n > max then
+		return max
+	elseif n < min then
+		return min
+	end
 	return n
 end
 
 function pid(p, i, d)
-	return { p = p, i = i, d = d, E = 0, D = 0, I = 0,
+	return {
+		p = p,
+		i = i,
+		d = d,
+		E = 0,
+		D = 0,
+		I = 0,
 		run = function(s, sp, pv)
 			local E, D, A
 			E = sp - pv
@@ -45,10 +54,10 @@ function onTick()
 	startStop = input.getBool(1)
 	onOff = input.getBool(2)
 
-	if gear == 0 then throttle = clamp(throttle,0,0.25) end
+	if gear == 0 then throttle = clamp(throttle, 0, 0.25) end
 
 	pidmin = clamp(rpsIdle:run(rps, minRps) * -1, 0, 1)
-	pidmax = clamp(rpsLimit:run(rps, maxRps) * -1, throttle*-1, 0)
+	pidmax = clamp(rpsLimit:run(rps, maxRps) * -1, throttle * -1, 0)
 	if rps > maxRps then throttle = throttle + pidmax end
 	if rps > 1 then
 		if rps < minRps then throttle = throttle + pidmin end
@@ -73,5 +82,4 @@ function onTick()
 
 	output.setBool(1, startStop)
 	output.setBool(2, onOff)
-
 end

@@ -1,3 +1,2 @@
-.vscode/*
-/_build/
-!/_build/_buildactions.lua
+.vscode
+/_build

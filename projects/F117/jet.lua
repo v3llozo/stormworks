@@ -50,14 +50,14 @@ function onTick()
     pitch = input.getNumber(2)
     yaw = input.getNumber(3)
 
-    wingL = clamp(roll,0,1) + clamp(pitch,0,1)
-    wingR = clamp(roll,-1,0) + clamp(pitch,-1,0)
+    wingL = (roll + pitch) * 0.4
+    wingR = (roll * -1 + pitch) * 0.4
 
-    tailL = clamp(yaw,0,1)
-    tailR = clamp(yaw,-1,0)
+    tailL = (roll) * 0.4
+    tailR = (roll * -1) * 0.4
 
-    rearL = clamp(roll,0,1) + clamp(pitch,0,1)
-    rearR = clamp(roll,-1,0) + clamp(pitch,-1,0)
+    rearL = (yaw + pitch) * 0.2
+    rearR = (yaw + pitch) * 0.2
 
     pidmax = clamp(throttlePid:run(rps, maxRps) * -1, throttle * -1, 0)
     if rps > maxRps then throttle = throttle + pidmax end

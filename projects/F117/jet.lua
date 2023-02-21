@@ -1,6 +1,23 @@
--- Author: V3llozo
--- GitHub: https://github.com/v3llozo
--- Workshop: <WorkshopLink>
+---@section __LB_SIMULATOR_ONLY__
+do
+    ---@type Simulator -- Set properties and screen sizes here - will run once when the script is loaded
+    simulator = simulator
+    simulator:setScreen(1, "5x3")
+    simulator:setProperty("System", "Radar")
+
+    -- Runs every tick just before onTick; allows you to simulate the inputs changing
+    ---@param simulator Simulator Use simulator:<function>() to set inputs etc.
+    ---@param ticks     number Number of ticks since simulator started
+    function onLBSimulatorTick(simulator, ticks)
+        simulator:setInputNumber(1, simulator:getSlider(1))
+        simulator:setInputNumber(2, simulator:getSlider(2))
+        simulator:setInputNumber(3, simulator:getSlider(3))
+    end
+
+    ;
+end
+---@endsection
+
 function pid(p, i, d)
     return {
         p = p,
@@ -50,14 +67,14 @@ function onTick()
     pitch = input.getNumber(2)
     yaw = input.getNumber(3)
 
-    wingL = (roll + pitch) * 0.4
-    wingR = (roll * -1 + pitch) * 0.4
+    wingL = clamp((roll + pitch), 0, 0.4)
+    wingR = clamp((roll * -1 + pitch), 0, 0.4)
 
-    tailL = (roll) * 0.4
-    tailR = (roll * -1) * 0.4
+    tailL = clamp((yaw), 0, 0.4)
+    tailR = clamp((yaw), 0, 0.4)
 
-    rearL = (yaw + pitch) * 0.2
-    rearR = (yaw + pitch) * 0.2
+    rearL = clamp((roll + pitch), 0, 0.3)
+    rearR = clamp((roll * -1 + pitch), 0, 0.3)
 
     pidmax = clamp(throttlePid:run(rps, maxRps) * -1, throttle * -1, 0)
     if rps > maxRps then throttle = throttle + pidmax end

@@ -1,3 +1,4 @@
+--@section clamp
 function clamp(n, min, max)
 	if n > max then
 		return max
@@ -6,7 +7,9 @@ function clamp(n, min, max)
 	end
 	return n
 end
+--@endsection
 
+--@section pid
 function pid(p, i, d)
 	return {
 		p = p,
@@ -27,12 +30,13 @@ function pid(p, i, d)
 		end
 	}
 end
+--@endsection
 
 function onDraw()
 end
 
 rpsIdle = pid(.4, .0005, .07)
-rpsLimit = pid(.0001, .03, .9)
+rpsLimit = pid(.8, .0001, 0)
 tickCounter = 0
 
 x = 0.0001
@@ -57,8 +61,8 @@ function onTick()
 	if gear == 0 then throttle = clamp(throttle, 0, 0.25) end
 
 	pidmin = clamp(rpsIdle:run(rps, minRps) * -1, 0, 1)
-	pidmax = clamp(rpsLimit:run(rps, maxRps) * -1, throttle * -1, 0)
-	if rps > maxRps then throttle = throttle + pidmax end
+	pidmax = clamp(rpsLimit:run(rps, maxRps) * -1, throttle * -0.85, 0)
+	throttle = throttle + pidmax
 	if rps > 1 then
 		if rps < minRps then throttle = throttle + pidmin end
 	end

@@ -13,11 +13,10 @@ do
         simulator:setInputNumber(2, simulator:getSlider(2))
         simulator:setInputNumber(3, simulator:getSlider(3))
     end
-
-    ;
 end
 ---@endsection
 
+-- @section pid
 function pid(p, i, d)
     return {
         p = p,
@@ -38,7 +37,8 @@ function pid(p, i, d)
         end
     }
 end
-
+-- @endsection
+-- @section clamp
 function clamp(n, min, max)
     if n > max then
         return max
@@ -47,8 +47,9 @@ function clamp(n, min, max)
     end
     return n
 end
+-- @endsection
 
-throttlePid = pid(0.1, 0, 0)
+throttlePid = pid(.8, .0001, 0)
 
 ticks = 0
 function onTick()
@@ -67,17 +68,17 @@ function onTick()
     pitch = input.getNumber(2)
     yaw = input.getNumber(3)
 
-    wingL = clamp((roll + pitch), 0, 0.6)
-    wingR = clamp((roll * -1 + pitch), 0, 0.6)
+    wingL = (roll + pitch) * 0.4
+    wingR = (roll * -1 + pitch) * 0.4
 
-    tailL = clamp((yaw), 0, 0.6)
-    tailR = clamp((yaw), 0, 0.6)
+    tailL = (yaw) * 0.4
+    tailR = (yaw) * 0.4
 
-    rearL = clamp((roll + pitch), 0, 0.4)
-    rearR = clamp((roll * -1 + pitch), 0, 0.4)
+    rearL = (roll + pitch) * 0.2
+    rearR = (roll * -1 + pitch) * 0.2
 
     pidmax = clamp(throttlePid:run(rps, maxRps) * -1, throttle * -1, 0)
-    if rps > maxRps then throttle = throttle + pidmax end
+    throttle = throttle + pidmax
     output.setNumber(1, throttle)
 
     output.setNumber(3, wingL)

@@ -79,8 +79,8 @@ function onTick()
     tailL = (yaw)
     tailR = (yaw)
 
-    rearL = clamp((roll + pitch), 0, 0.4)
-    rearR = clamp((roll * -1 + pitch), 0, 0.4)
+    rearL = clamp((roll + pitch), -0.4, 0.4)
+    rearR = clamp((roll * -1 + pitch), -0.4, 0.4)
 
     pidmaxL = clamp(throttlePidL:run(rpsL, maxRps) * -1, throttle * -1, 0)
     pidmaxR = clamp(throttlePidR:run(rpsR, maxRps) * -1, throttle * -1, 0)

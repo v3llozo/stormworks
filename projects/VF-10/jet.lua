@@ -49,14 +49,23 @@ function clamp(n, min, max)
 end
 -- @endsection
 
-throttlePid = pid(.8, .0001, 0)
+throttlePidL = pid(0.1, 0, 0)
+throttlePidR = pid(0.1, 0, 0)
 
 ticks = 0
 function onTick()
     ticks = ticks + 1
     throttle = input.getNumber(11)
-    rps = input.getNumber(12)
-    maxRps = 190 -- input.getNumber(13)
+    rpsL = input.getNumber(12)
+    rpsR = input.getNumber(13)
+    roll = input.getNumber(1)
+    pitch = input.getNumber(2)
+    yaw = input.getNumber(3)
+
+    afterburnerL = input.getBool(1)
+    afterburnerR = input.getBool(2)
+
+    maxRps = 180
     wingL = 0
     wingR = 0
     tailL = 0
@@ -64,27 +73,32 @@ function onTick()
     rearL = 0
     rearR = 0
 
-    roll = input.getNumber(1)
-    pitch = input.getNumber(2)
-    yaw = input.getNumber(3)
+    wingL = (roll + pitch)
+    wingR = (roll * -1 + pitch)
 
-    wingL = (roll + pitch) * 0.4
-    wingR = (roll * -1 + pitch) * 0.4
+    tailL = (yaw)
+    tailR = (yaw)
 
-    tailL = (yaw) * 0.4
-    tailR = (yaw) * 0.4
+    rearL = clamp((roll + pitch), 0, 0.4)
+    rearR = clamp((roll * -1 + pitch), 0, 0.4)
 
-    rearL = (roll + pitch) * 0.2
-    rearR = (roll * -1 + pitch) * 0.2
+    pidmaxL = clamp(throttlePidL:run(rpsL, maxRps) * -1, throttle * -1, 0)
+    pidmaxR = clamp(throttlePidR:run(rpsR, maxRps) * -1, throttle * -1, 0)
+    output.setNumber(1, (throttle + pidmaxL))
+    output.setNumber(2, (throttle + pidmaxR))
 
-    pidmax = clamp(throttlePid:run(rps, maxRps) * -1, throttle * -1, 0)
-    throttle = throttle + pidmax
-    output.setNumber(1, throttle)
+    if afterburnerL == true then
+        output.setNumber(3, throttle)
+    end
 
-    output.setNumber(3, wingL)
-    output.setNumber(4, wingR)
-    output.setNumber(5, tailL)
-    output.setNumber(6, tailR)
-    output.setNumber(7, rearL)
-    output.setNumber(8, rearR)
+    if afterburnerR == true then
+        output.setNumber(4, throttle)
+    end
+
+    output.setNumber(5, wingL)
+    output.setNumber(6, wingR)
+    output.setNumber(7, tailL)
+    output.setNumber(8, tailR)
+    output.setNumber(9, rearL)
+    output.setNumber(10, rearR)
 end

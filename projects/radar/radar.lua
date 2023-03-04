@@ -1,15 +1,9 @@
 --- Developed using LifeBoatAPI - Stormworks Lua plugin for VSCode - https://code.visualstudio.com/download (search "Stormworks Lua with LifeboatAPI" extension)
 --- If you have any issues, please report them here: https://github.com/nameouschangey/STORMWORKS_VSCodeExtension/issues - by Nameous Changey
-
-
---[====[ HOTKEYS ]====]
--- Press F6 to simulate this file
+--[====[ HOTKEYS ]====] -- Press F6 to simulate this file
 -- Press F7 to build the project, copy the output from /_build/out/ into the game to use
 -- Remember to set your Author name etc. in the settings: CTRL+COMMA
-
-
---[====[ EDITABLE SIMULATOR CONFIG - *automatically removed from the F7 build output ]====]
----@section __LB_SIMULATOR_ONLY__
+--[====[ EDITABLE SIMULATOR CONFIG - *automatically removed from the F7 build output ]====] ---@section __LB_SIMULATOR_ONLY__
 do
     ---@type Simulator -- Set properties and screen sizes here - will run once when the script is loaded
     simulator = simulator
@@ -40,11 +34,8 @@ do
         -- NEW! button/slider options from the UI
         simulator:setInputBool(1, simulator:getIsToggled(1)) -- if button 1 is clicked, provide an ON pulse for input.getBool(31)
     end
-
-    ;
 end
 ---@endsection
-
 
 --[====[ IN-GAME CODE ]====]
 -- try require("Folder.Filename") to include code from another file in this, so you can store code in libraries
@@ -54,7 +45,7 @@ ticks = 0
 maxTargets = 7
 defaultDistance = 3
 -- 0.5km, 1km, 2km, 5km, 10km, 15km, 30km, 60km
-distanceDetector = { 0.002, 0.001, 0.0005, 0.0002, 0.0001, 0.0000666, 0.0000333, 0.0000166 }
+distanceDetector = {0.002, 0.001, 0.0005, 0.0002, 0.0001, 0.0000666, 0.0000333, 0.0000166}
 selectedDistance = distanceDetector[defaultDistance]
 function onTick()
     output.setBool(1, false)
@@ -84,12 +75,18 @@ function onTick()
 end
 
 detectedTargets = {}
+function getRadiusPosition(rad, angle, h, w)
+    return {
+        x = rad * math.sin(angle * 0.0175) + h / 2,
+        y = rad * math.cos(angle * 0.0175) + w / 2
+    }
+end
 function onDraw()
     w = screen.getWidth()
     h = screen.getHeight()
-    screen.setColor(5, 5, 5)
+    screen.setColor(7, 7, 7)
     screen.drawRectF(0, 0, w, h)
-    r = (h / 2) * 0.95
+    r = w
     rX = r * math.sin(radar.angle * 0.0175) + h / 2
     rY = r * math.cos(radar.angle * 0.0175) + w / 2
 
@@ -110,37 +107,44 @@ function onDraw()
 
     screen.setColor(190, 190, 190)
     screen.drawRectF(w / 2 - 1, h / 2 - 1, 3, 3)
-    for i = 1, 5, 1 do
-        screen.drawCircle(w / 2, h / 2, r / 5 * i)
+    for i = 1, 10, 1 do
+        screen.drawCircle(w / 2, h / 2, r / 10 * i)
     end
     for i = 0, 7, 1 do
-        screen.drawLine(w / 2, h / 2, r * math.cos(((i * 45) + 45) * 0.0175) + w / 2,
-            r * math.sin(((i * 45) + 45) * 0.0175) + h / 2)
+        screen.drawLine(w / 2, h / 2, r * math.cos(((i * 44) + 44) * 0.0175) + w / 2,
+            r * math.sin(((i * 44) + 44) * 0.0175) + h / 2)
     end
 
+    -- radar
     screen.setColor(40, 251, 40)
     screen.drawLine(w / 2, h / 2, rY, rX)
+    -- screen.drawTriangleF(w / 2, h / 2, rx)
 
     targetAngle = radar.angle
     for i = 1, maxTargets, 1 do
         if radar.found[i] then
             screen.setColor(255, 255, 255)
             tX = (radar.target[i].distance * selectedDistance) * r *
-                math.sin((targetAngle - radar.target[i].azimuth / 100) * 0.0175) + h / 2
+                     math.sin((targetAngle - radar.target[i].azimuth / 100) * 0.0175) + h / 2
             tY = (radar.target[i].distance * selectedDistance) * r *
-                math.cos((targetAngle - radar.target[i].azimuth / 100) * 0.0175) + w / 2
-            screen.setColor(255,10,20)
+                     math.cos((targetAngle - radar.target[i].azimuth / 100) * 0.0175) + w / 2
+            screen.setColor(255, 10, 20)
             screen.drawRect(tY, tX, 1, 1)
-            table.insert(detectedTargets, { y = tY, x = tX, angle = targetAngle, time = radar.target[i].time })
+            table.insert(detectedTargets, {
+                y = tY,
+                x = tX,
+                angle = targetAngle,
+                time = radar.target[i].time
+            })
         end
     end
 
     for k, t in pairs(detectedTargets) do
-        screen.setColor(255,10,20)
+        screen.setColor(255, 10, 20)
         screen.drawRect(t.y, t.x, 1, 1)
     end
 
     screen.setColor(255, 255, 255)
     screen.drawRectF(w / 2 - 1, h / 2 - 1, 3, 3)
-    screen.drawText(2, 2, string.format("%1.1f", 1/distanceDetector[defaultDistance]/1000))
+    screen.drawText(2, 2, string.format("%1.1f", 1 / distanceDetector[defaultDistance] / 1000))
 end

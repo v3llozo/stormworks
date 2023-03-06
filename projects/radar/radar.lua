@@ -7,7 +7,7 @@
 do
     ---@type Simulator -- Set properties and screen sizes here - will run once when the script is loaded
     simulator = simulator
-    simulator:setScreen(1, "5x3")
+    simulator:setScreen(1, "3x3")
     simulator:setProperty("System", "Radar")
 
     -- Runs every tick just before onTick; allows you to simulate the inputs changing
@@ -47,6 +47,12 @@ defaultDistance = 3
 -- 0.5km, 1km, 2km, 5km, 10km, 15km, 30km, 60km
 distanceDetector = {0.002, 0.001, 0.0005, 0.0002, 0.0001, 0.0000666, 0.0000333, 0.0000166}
 selectedDistance = distanceDetector[defaultDistance]
+function getRaiousPosition(r, angle, h, w)
+    return {
+        x = r * math.sin(angle * 0.0175) + h / 2,
+        y = r * math.cos(angle * 0.0175) + w / 2
+    }
+end
 function onTick()
     output.setBool(1, false)
     isTouched = input.getBool(1)
@@ -84,7 +90,7 @@ end
 function onDraw()
     w = screen.getWidth()
     h = screen.getHeight()
-    screen.setColor(7, 7, 7)
+    screen.setColor(5, 4, 8)
     screen.drawRectF(0, 0, w, h)
     r = w
     rX = r * math.sin(radar.angle * 0.0175) + h / 2
@@ -97,6 +103,7 @@ function onDraw()
             defaultDistance = defaultDistance + 1
         end
         selectedDistance = distanceDetector[defaultDistance]
+        detectedTargets = {}
     end
 
     for k, t in ipairs(detectedTargets) do
@@ -105,20 +112,20 @@ function onDraw()
         end
     end
 
-    screen.setColor(190, 190, 190)
+    screen.setColor(130, 130, 130)
     screen.drawRectF(w / 2 - 1, h / 2 - 1, 3, 3)
     for i = 1, 10, 1 do
         screen.drawCircle(w / 2, h / 2, r / 10 * i)
     end
     for i = 0, 7, 1 do
-        screen.drawLine(w / 2, h / 2, r * math.cos(((i * 44) + 44) * 0.0175) + w / 2,
-            r * math.sin(((i * 44) + 44) * 0.0175) + h / 2)
+        screen.drawLine(w / 2, h / 2, r * math.cos((i * 45) * 0.0175) + w / 2, r * math.sin((i * 45) * 0.0175) + h / 2)
     end
 
     -- radar
-    screen.setColor(40, 251, 40)
-    screen.drawLine(w / 2, h / 2, rY, rX)
-    -- screen.drawTriangleF(w / 2, h / 2, rx)
+    screen.setColor(40, 200, 40, 80)
+    r1 = getRaiousPosition(r, radar.angle - 20, h, w)
+    r2 = getRaiousPosition(r, radar.angle, h, w)
+    screen.drawTriangleF(w / 2, h / 2, r1.y, r1.x, r2.y, r2.x)
 
     targetAngle = radar.angle
     for i = 1, maxTargets, 1 do
@@ -140,11 +147,14 @@ function onDraw()
     end
 
     for k, t in pairs(detectedTargets) do
-        screen.setColor(255, 10, 20)
+        screen.setColor(220, 10, 20)
         screen.drawRect(t.y, t.x, 1, 1)
     end
 
-    screen.setColor(255, 255, 255)
+    screen.setColor(255, 255, 255, 255)
     screen.drawRectF(w / 2 - 1, h / 2 - 1, 3, 3)
-    screen.drawText(2, 2, string.format("%1.1f", 1 / distanceDetector[defaultDistance] / 1000))
+    screen.setColor(3, 3, 5)
+    screen.drawRectF(0, h - 8, 21, 8)
+    screen.setColor(255, 255, 255, 255)
+    screen.drawText(1, h - 6, string.format("%1.1f", 1 / distanceDetector[defaultDistance] / 1000))
 end

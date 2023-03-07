@@ -19,6 +19,7 @@ function pid(p, i, d)
         end
     }
 end
+
 -- @endsection
 -- @section clamp
 function clamp(n, min, max)
@@ -29,6 +30,7 @@ function clamp(n, min, max)
     end
     return n
 end
+
 -- @endsection
 
 throttlePidL = pid(0.1, 0, 0)

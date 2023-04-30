@@ -34,7 +34,11 @@ end
 
 --@endsection
 
-rpsIdle = pid(.4, .0005, .07)
+pidSettingsIdle = {
+	{ p = 0.4, i = 0.0005, d = 0.07 },
+	{ p = 0.6, i = 0.0003, d = 0.08 },
+}
+rpsIdle = pid(pidSettingsIdle[2].p, pidSettingsIdle[2].i, pidSettingsIdle[2].d)
 rpsLimit = pid(.8, .0001, 0)
 tickCounter = 0
 
@@ -72,7 +76,7 @@ function onTick()
 		pidmax = clamp(rpsLimit:run(rps, maxRps) * -1, throttle * -0.8, 0)
 		throttle = throttle + pidmax
 		if rps > 1 then
-			if rps < minRps then throttle = throttle + pidmin end
+			if rps < minRps + (minRps * 0.2) then throttle = throttle + pidmin end
 		end
 
 		if air == 0 then air = 0.0001 end

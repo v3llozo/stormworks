@@ -37,8 +37,9 @@ end
 pidSettingsIdle = {
 	{ p = 0.4, i = 0.0005, d = 0.07 },
 	{ p = 0.6, i = 0.0003, d = 0.08 },
+	{ p = 0,   i = 0,      d = 0 },
 }
-rpsIdle = pid(pidSettingsIdle[2].p, pidSettingsIdle[2].i, pidSettingsIdle[2].d)
+rpsIdle = pid(pidSettingsIdle[1].p, pidSettingsIdle[1].i, pidSettingsIdle[1].d)
 rpsLimit = pid(.8, .0001, 0)
 tickCounter = 0
 
@@ -59,10 +60,19 @@ function onTick()
 	minRps = input.getNumber(8)
 	maxRps = input.getNumber(9)
 	gear = input.getNumber(10)
+	inputP = input.getNumber(13)
+	inputI = input.getNumber(14)
+	inputD = input.getNumber(15)
+	inputAFR = input.getNumber(16)
+	inputSTR = input.getNumber(17)
+	-- input = input.getNumber(18)
+	-- input = input.getNumber(19)
+	-- input = input.getNumber(20)
 	startStop = input.getBool(1)
 	onOff = input.getBool(2)
 	overheat = input.getBool(3)
 
+	-- if inputP and inputI and inputD then rpsIdle = pid(inputP, inputI, inputD) end
 	if startStop == true then startStopToggle = not startStopToggle end
 
 	if onOff == false or (onOff == true and startStopToggle == false) then
@@ -76,7 +86,7 @@ function onTick()
 		pidmax = clamp(rpsLimit:run(rps, maxRps) * -1, throttle * -0.8, 0)
 		throttle = throttle + pidmax
 		if rps > 1 then
-			if rps < minRps + (minRps * 0.2) then throttle = throttle + pidmin end
+			if rps < minRps then throttle = throttle + pidmin end
 		end
 
 		if air == 0 then air = 0.0001 end

@@ -33,10 +33,10 @@ do
 		simulator:setInputNumber(4, screenConnection.touchY)
 
 		-- NEW! button/slider options from the UI
-		simulator:setInputBool(31, simulator:getIsClicked(1))     -- if button 1 is clicked, provide an ON pulse for input.getBool(31)
-		simulator:setInputNumber(31, simulator:getSlider(1))      -- set input 31 to the value of slider 1
+		simulator:setInputBool(31, simulator:getIsClicked(1)) -- if button 1 is clicked, provide an ON pulse for input.getBool(31)
+		simulator:setInputNumber(31, simulator:getSlider(1)) -- set input 31 to the value of slider 1
 
-		simulator:setInputBool(32, simulator:getIsToggled(2))     -- make button 2 a toggle, for input.getBool(32)
+		simulator:setInputBool(32, simulator:getIsToggled(2)) -- make button 2 a toggle, for input.getBool(32)
 		simulator:setInputNumber(32, simulator:getSlider(2) * 50) -- set input 32 to the value from slider 2 * 50
 	end;
 end
@@ -85,10 +85,20 @@ end
 
 --@endsection
 
+-- rpsIdle = pid(0.7, 0.0004, 0.08)
+rpsIdleDefault = {
+	p = 0.5,
+	i = 0.005,
+	d = 0.001
+}
+rpsLimit = pid(.8, .0001, 0)
+x = 0.0001
+y = 0.0001
+startStopToggle = false
 ticks = 0
 function onTick()
 	ticks = ticks + 1
-	if tickCounter > 60000 then tickCounter = 0 end
+	if ticks > 60000 then ticks = 0 end
 
 	air = input.getNumber(1)
 	fuel = input.getNumber(2)
@@ -100,14 +110,17 @@ function onTick()
 	minRps = input.getNumber(8)
 	maxRps = input.getNumber(9)
 	gear = input.getNumber(10)
-	-- inputP = input.getNumber(13)
-	-- inputI = input.getNumber(14)
-	-- inputD = input.getNumber(15)
-	-- inputAFR = input.getNumber(16)
-	-- inputSTR = input.getNumber(17)
-	-- input = input.getNumber(18)
-	-- input = input.getNumber(19)
-	-- input = input.getNumber(20)
+	pInput = input.getNumber(11)
+	iInput = input.getNumber(12)
+	dInput = input.getNumber(13)
+	
+	if pInput == 0 and iInput == 0 and dInput == 0 then
+		rpsIdle = pid(rpsIdleDefault.p, rpsIdleDefault.i, rpsIdleDefault.d)
+	else
+		rpsIdle = pid(pInput, iInput, dInput)
+	end
+	rpsIdle = pid(pInput, iInput, dInput)
+
 	startStop = input.getBool(1)
 	onOff = input.getBool(2)
 	overheat = input.getBool(3)
@@ -121,14 +134,14 @@ function onTick()
 		airIntake = 0
 		fuelIntake = 0
 	else
-		-- Throttle 
+		-- Throttle
 		if gear == 0 then throttle = clamp(throttle, 0, 0.25) end
 
-		pidmin = clamp(rpsIdle:run(rps, minRps) * -1, 0, 1)
+		pidmin = rpsIdle:run(rps, minRps) * -1
 		pidmax = clamp(rpsLimit:run(rps, maxRps) * -1, throttle * -0.8, 0)
 		throttle = throttle + pidmax
 		if rps > 1 then
-			if rps < minRps then throttle = throttle + pidmin end
+			if rps < minRps then throttle = throttle + clamp(pidmin, 0, 1) end
 		end
 
 		if air == 0 then air = 0.0001 end
